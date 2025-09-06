@@ -11,33 +11,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 
 @Composable
 fun EditJugadorScreen(
-    jugadorId: Int? = null, // 🔹 ahora soporta parámetro opcional
     viewModel: EditJugadorViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
-
-    // 🔹 Cargar jugador existente si viene un id
-    LaunchedEffect(jugadorId) {
-        if (jugadorId != null) {
-            viewModel.loadJugador(jugadorId)
-        }
-    }
-
-    // 🔹 Mostrar el cuerpo de la UI
     EditJugadorBody(
         state = state,
         onEvent = viewModel::onEvent
     )
-}
-
-private fun EditJugadorViewModel.loadJugador(
-    jugadorId: Int
-) {
 }
 
 @Composable
@@ -48,9 +31,7 @@ fun EditJugadorBody(
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxSize()
     ) {
-        // Nombre del jugador
         OutlinedTextField(
             value = state.nombres,
             onValueChange = { onEvent(EditJugadorUiEvent.NombresChanged(it)) },
@@ -69,7 +50,6 @@ fun EditJugadorBody(
 
         Spacer(Modifier.height(12.dp))
 
-        // Partidas jugadas
         OutlinedTextField(
             value = state.partidas,
             onValueChange = { onEvent(EditJugadorUiEvent.PartidasChanged(it)) },
@@ -89,33 +69,23 @@ fun EditJugadorBody(
 
         Spacer(Modifier.height(16.dp))
 
-        // Botones de acción
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        Row {
             Button(
                 onClick = { onEvent(EditJugadorUiEvent.Save) },
                 enabled = !state.isSaving,
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
                     .testTag("btn_guardar")
-            ) {
-                Text("Guardar")
-            }
+            ) { Text("Guardar") }
 
             Spacer(Modifier.width(8.dp))
 
-            if (!state.isNew) { // 🔹 Solo mostrar "Eliminar" si el jugador ya existe
+            if (!state.isNew) {
                 OutlinedButton(
                     onClick = { onEvent(EditJugadorUiEvent.Delete) },
                     enabled = !state.isDeleting,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag("btn_eliminar")
-                ) {
-                    Text("Eliminar")
-                }
+                    modifier = Modifier.testTag("btn_eliminar")
+                ) { Text("Eliminar") }
             }
         }
     }
@@ -124,11 +94,7 @@ fun EditJugadorBody(
 @Preview
 @Composable
 private fun EditJugadorBodyPreview() {
-    val state = EditJugadorUiState(
-        nombres = "Lionel Messi",
-        partidas = "120",
-        isNew = false
-    )
+    val state = EditJugadorUiState()
     MaterialTheme {
         EditJugadorBody(state = state) {}
     }
