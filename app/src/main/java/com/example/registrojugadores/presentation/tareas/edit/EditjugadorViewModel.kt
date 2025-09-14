@@ -63,6 +63,7 @@ class EditJugadorViewModel @Inject constructor(
         val nombres = state.value.nombres
         val partidas = state.value.partidas
         val validation = validateJugadorUi(nombres, partidas)
+
         if (!validation.isValid) {
             _state.update {
                 it.copy(
@@ -72,21 +73,44 @@ class EditJugadorViewModel @Inject constructor(
             }
             return
         }
+
         viewModelScope.launch {
-            _state.update { it.copy(isSaving = true) }
-            val jugador = Jugador(
-                jugadorId = state.value.jugadorId ?: 0,
-                nombres = nombres,
-                partidas = partidas.toInt()
-            )
-            val result = upsertJugadorUseCase(jugador)
-            result.onSuccess { newId ->
-                _state.update { it.copy(isSaving = false, saved = true, jugadorId = newId) }
-            }.onFailure {
-                _state.update { it.copy(isSaving = false) }
+            _state.update { it.copy(isSaving = true, saveError = null) }
+            try {
+                val jugador = Jugador(
+                    jugadorId = state.value.jugadorId ?: 0,
+                    nombres = nombres,
+                    partidas = partidas.toInt()
+                )
+                val result = upsertJugadorUseCase(jugador)
+
+                result.onSuccess { newId ->
+                    _state.update {
+                        it.copy(
+                            isSaving = false,
+                            saved = true,
+                            jugadorId = newId
+                        )
+                    }
+                }.onFailure { e ->
+                    _state.update {
+                        it.copy(
+                            isSaving = false,
+                            saveError = e.message ?: "Error al guardar"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        isSaving = false,
+                        saveError = e.message ?: "Error inesperado al guardar"
+                    )
+                }
             }
         }
     }
+
 
     private fun onDelete() {
         val id = state.value.jugadorId ?: return

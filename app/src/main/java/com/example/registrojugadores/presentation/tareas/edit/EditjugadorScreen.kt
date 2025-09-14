@@ -14,9 +14,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun EditJugadorScreen(
-    viewModel: EditJugadorViewModel = hiltViewModel()
+    viewModel: EditJugadorViewModel = hiltViewModel(),
+    jugadorId: Int? = null,
+    onSaveSuccess: () -> Unit = {} // 👈 nuevo callback
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(jugadorId) {
+        viewModel.onEvent(EditJugadorUiEvent.Load(jugadorId))
+    }
+
+    if (state.saved) {
+        LaunchedEffect(Unit) {
+            onSaveSuccess()
+        }
+    }
+
     EditJugadorBody(
         state = state,
         onEvent = viewModel::onEvent

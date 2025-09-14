@@ -4,17 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.registrojugadores.presentation.tareas.edit.EditJugadorScreen
 import com.example.registrojugadores.presentation.tareas.list.ListJugadorScreen
@@ -30,29 +23,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RegistroJugadoresTheme {
-                Scaffold (
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    text = "Lista de jugadores",
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                            },
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "listJugador"
+                ) {
+                    composable("listJugador") {
+                        ListJugadorScreen(
+                            onNavigateToCreate = { navController.navigate("editJugador") },
+                            onNavigateToEdit = { id -> navController.navigate("editJugador/$id") }
                         )
-                    },
-                ){
-                    Column (
-                        modifier = Modifier.fillMaxSize()
-                            .padding(it)
-                    ) {
-                        EditJugadorScreen()
-                        ListJugadorScreen()
                     }
-
+                    composable("editJugador") {
+                        EditJugadorScreen(
+                            onSaveSuccess = { navController.popBackStack() }
+                        )
+                    }
+                    composable("editJugador/{id}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                        EditJugadorScreen(
+                            jugadorId = id,
+                            onSaveSuccess = { navController.popBackStack() }
+                        )
+                    }
                 }
-
-
             }
         }
     }

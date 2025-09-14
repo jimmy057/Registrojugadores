@@ -46,8 +46,16 @@ class ListJugadorViewModel @Inject constructor(
 
     private fun onDelete(id: Int) {
         viewModelScope.launch {
-            deleteJugadorUseCase(id)
-            onEvent(ListJugadorUiEvent.ShowMessage("Jugador eliminado"))
+            try {
+                deleteJugadorUseCase(id)
+                onEvent(ListJugadorUiEvent.ShowMessage("Jugador eliminado correctamente"))
+            } catch (e: Exception) {
+                onEvent(
+                    ListJugadorUiEvent.ShowMessage(
+                        e.message ?: "Error al eliminar el jugador"
+                    )
+                )
+            }
         }
     }
 

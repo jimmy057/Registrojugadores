@@ -13,26 +13,24 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.example.registrojugadores.domain.model.Jugador
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListJugadorScreen(
-    navController: NavController? = null, // 🔹 Ahora es opcional
-    viewModel: ListJugadorViewModel = hiltViewModel()
+    viewModel: ListJugadorViewModel = hiltViewModel(),
+    onNavigateToCreate: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // 🔹 Navegación a crear jugador
     if (state.navigateToCreate) {
-        navController?.navigate("editJugador") // solo navega si hay navController
+        onNavigateToCreate()
         viewModel.onNavigationHandled()
     }
 
-    // 🔹 Navegación a editar jugador
     state.navigateToEditId?.let { id ->
-        navController?.navigate("editJugador/$id")
+        onNavigateToEdit(id)
         viewModel.onNavigationHandled()
     }
 
@@ -89,6 +87,7 @@ fun ListJugadorScreen(
         }
     }
 }
+
 
 @Composable
 fun JugadorCard(

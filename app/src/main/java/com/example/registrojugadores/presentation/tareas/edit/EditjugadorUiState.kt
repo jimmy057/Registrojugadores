@@ -10,5 +10,6 @@ data class EditJugadorUiState(
     val isDeleting: Boolean = false,
     val isNew: Boolean = true,
     val saved: Boolean = false,
-    val deleted: Boolean=false
+    val deleted: Boolean=false,
+    val saveError: String? = null
 )
