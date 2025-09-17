@@ -58,6 +58,7 @@ dependencies {
 
 
     implementation("androidx.compose.foundation:foundation:1.5.0")
+    implementation("androidx.navigation:navigation-compose:2.8.0")
 
     //optional
     implementation("androidx.room:room-ktx:2.6.1")
