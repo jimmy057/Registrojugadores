@@ -20,7 +20,9 @@ import com.example.registrojugadores.domain.model.Jugador
 fun ListJugadorScreen(
     viewModel: ListJugadorViewModel = hiltViewModel(),
     onNavigateToCreate: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigateToTicTacToe: () -> Unit,
+    onNavigateToPartidas: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -39,13 +41,34 @@ fun ListJugadorScreen(
             TopAppBar(title = { Text("Lista de jugadores") })
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.onEvent(ListJugadorUiEvent.CreateNew) },
-                modifier = Modifier.testTag("fab_create_jugador")
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp), // espacio entre botones
+                horizontalAlignment = Alignment.End
             ) {
-                Text("+")
+                // FAB para agregar jugador
+                FloatingActionButton(
+                    onClick = { viewModel.onEvent(ListJugadorUiEvent.CreateNew) },
+                    modifier = Modifier.testTag("fab_create_jugador")
+                ) {
+                    Text("+")
+                }
+
+                // FAB para jugar TicTacToe
+                FloatingActionButton(
+                    onClick = { onNavigateToTicTacToe() },
+                    modifier = Modifier.testTag("fab_play_tictactoe")
+                ) {
+                    Text("🎮")
+                }
+                FloatingActionButton(
+                    onClick = { onNavigateToPartidas() },
+                    modifier = Modifier.testTag("fab_view_partidas")
+                ) {
+                    Text("📜")
+                }
             }
         }
+
     ) { padding ->
         if (state.isLoading) {
             Box(
