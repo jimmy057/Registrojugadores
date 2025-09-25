@@ -18,18 +18,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@Suppress("unused")
-@InstallIn(SingletonComponent::class)
 @Module
+@InstallIn(SingletonComponent::class)
 object AppModulepartidas {
-
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, AppDatabase::class.java, "app.db").build()
-
-    @Provides
-    fun providePartidaDao(db: AppDatabase) = db.partidaDao()
 
     @Provides
     @Singleton
