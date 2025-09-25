@@ -19,14 +19,35 @@ import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.registrojugadores.domain.model.Jugador
+import com.example.registrojugadores.presentation.logros.LogrosViewModel
 import com.example.registrojugadores.ui.theme.RegistroJugadoresTheme
-
+import androidx.compose.runtime.LaunchedEffect
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.example.registrojugadores.domain.model.Logro
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun TicTacToeScreen(
-    viewModel: GameViewModel = hiltViewModel()
+    viewModel: GameViewModel = hiltViewModel(),
+    logrosViewModel: LogrosViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.logroEvent.collect { winnerId ->
+            val fecha = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val logro = Logro(
+                jugadorId = winnerId,
+                descripcion = "Ganó una partida de TicTacToe 🎉",
+                partidaId = null,
+                fecha = fecha,
+                puntos = 10
+            )
+            logrosViewModel.insertarLogro(logro)
+        }
+    }
 
     TicTacToeBody(
         state = state,
@@ -155,17 +176,19 @@ fun DropdownJugador(
     }
 }
 
-
 @Composable
 fun GameBoard(
     uiState: GameUiState,
     jugadores: List<Jugador>,
     onCellClick: (Int) -> Unit,
-    onRestartGame: () -> Unit
+    onRestartGame: () -> Unit,
+    // ⭐ ELIMINADO: La inyección de LogrosViewModel ya no va aquí.
+    // viewModel: LogrosViewModel = hiltViewModel()
 ) {
     val jugadoresMap = remember(jugadores) { jugadores.associateBy { it.jugadorId } }
     val currentPlayerName = uiState.currentPlayerId?.let { jugadoresMap[it]?.nombres } ?: "—"
-    val winnerName = uiState.winnerId?.let { jugadoresMap[it]?.nombres }
+    val winnerId = uiState.winnerId
+    val winnerName = winnerId?.let { jugadoresMap[it]?.nombres }
 
     val gameStatus = when {
         winnerName != null -> "🏆 ¡Ganador: $winnerName!"
@@ -173,20 +196,31 @@ fun GameBoard(
         else -> "Turno de: $currentPlayerName"
     }
 
-    Text(text = gameStatus, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-    Spacer(modifier = Modifier.height(20.dp))
-    GameBoardBody(
-        board = uiState.board,
-        jugadoresMap = jugadoresMap,
-        player1Id = uiState.player1Id,
-        player2Id = uiState.player2Id,
-        onCellClick = onCellClick
-    )
-    Spacer(modifier = Modifier.height(20.dp))
-    Button(onClick = onRestartGame) {
-        Text("Reiniciar Juego", fontSize = 18.sp)
+    // ❌ ELIMINADO: Ya no necesitamos este flag ni el LaunchedEffect aquí.
+    // var logroInsertado by remember { mutableStateOf(false) }
+    // LaunchedEffect(winnerId) { ... }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = gameStatus, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(20.dp))
+        GameBoardBody(
+            board = uiState.board,
+            jugadoresMap = jugadoresMap,
+            player1Id = uiState.player1Id,
+            player2Id = uiState.player2Id,
+            onCellClick = onCellClick
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Button(onClick = {
+            // ⭐ ELIMINADO: Ya no es necesario resetear el flag aquí.
+            // logroInsertado = false
+            onRestartGame() // Llama a la versión mejorada en GameViewModel
+        }) {
+            Text("Reiniciar Juego", fontSize = 18.sp)
+        }
     }
 }
+
 
 @Composable
 fun GameBoardBody(
