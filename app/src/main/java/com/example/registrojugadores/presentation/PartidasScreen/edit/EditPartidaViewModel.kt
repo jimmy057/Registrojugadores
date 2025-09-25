@@ -23,10 +23,9 @@ class EditPartidaViewModel @Inject constructor(
     private val _state = MutableStateFlow(EditPartidaUiState())
     val state: StateFlow<EditPartidaUiState> = _state.asStateFlow()
 
-    /** Cargar partida a editar y jugadores disponibles */
     fun loadPartida(partidaId: Int?) {
         viewModelScope.launch {
-            val jugadores = getAllPlayers() // Aquí se reemplaza por tu GetJugadorUseCase
+            val jugadores = getAllPlayers()
             _state.update { it.copy(jugadores = jugadores) }
 
             if (partidaId != null) {
@@ -44,7 +43,6 @@ class EditPartidaViewModel @Inject constructor(
         }
     }
 
-    /** Manejar eventos de UI */
     fun onEvent(event: EditPartidaUiEvent) {
         when (event) {
             is EditPartidaUiEvent.SelectJugador1 -> _state.update { it.copy(jugador1 = event.jugador) }
@@ -79,7 +77,6 @@ class EditPartidaViewModel @Inject constructor(
         }
     }
 
-    /** Mock de jugadores por ahora (reemplazar con tu GetJugadorUseCase real) */
     private fun getAllPlayers(): List<Jugador> {
         return listOf()
     }
