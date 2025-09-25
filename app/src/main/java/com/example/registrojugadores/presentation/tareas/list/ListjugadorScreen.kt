@@ -22,7 +22,8 @@ fun ListJugadorScreen(
     onNavigateToCreate: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
     onNavigateToTicTacToe: () -> Unit,
-    onNavigateToPartidas: () -> Unit
+    onNavigateToPartidas: () -> Unit,
+    onNavigateToLogros: (Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -42,33 +43,25 @@ fun ListJugadorScreen(
         },
         floatingActionButton = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp), // espacio entre botones
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                // FAB para agregar jugador
                 FloatingActionButton(
                     onClick = { viewModel.onEvent(ListJugadorUiEvent.CreateNew) },
                     modifier = Modifier.testTag("fab_create_jugador")
-                ) {
-                    Text("+")
-                }
+                ) { Text("+") }
 
-                // FAB para jugar TicTacToe
                 FloatingActionButton(
                     onClick = { onNavigateToTicTacToe() },
                     modifier = Modifier.testTag("fab_play_tictactoe")
-                ) {
-                    Text("🎮")
-                }
+                ) { Text("🎮") }
+
                 FloatingActionButton(
                     onClick = { onNavigateToPartidas() },
                     modifier = Modifier.testTag("fab_view_partidas")
-                ) {
-                    Text("📜")
-                }
+                ) { Text("📜") }
             }
         }
-
     ) { padding ->
         if (state.isLoading) {
             Box(
@@ -85,9 +78,7 @@ fun ListJugadorScreen(
                     .fillMaxSize()
                     .padding(padding),
                 contentAlignment = Alignment.Center
-            ) {
-                Text("No hay jugadores registrados")
-            }
+            ) { Text("No hay jugadores registrados") }
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -98,12 +89,9 @@ fun ListJugadorScreen(
                 items(state.jugadores) { jugador ->
                     JugadorCard(
                         jugador = jugador,
-                        onClick = {
-                            viewModel.onEvent(ListJugadorUiEvent.Edit(jugador.jugadorId))
-                        },
-                        onDelete = {
-                            viewModel.onEvent(ListJugadorUiEvent.Delete(jugador.jugadorId))
-                        }
+                        onClick = { viewModel.onEvent(ListJugadorUiEvent.Edit(jugador.jugadorId)) },
+                        onDelete = { viewModel.onEvent(ListJugadorUiEvent.Delete(jugador.jugadorId)) },
+                        onViewLogros = { onNavigateToLogros(jugador.jugadorId) } // <- Botón logros
                     )
                 }
             }
@@ -111,12 +99,12 @@ fun ListJugadorScreen(
     }
 }
 
-
 @Composable
 fun JugadorCard(
     jugador: Jugador,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onViewLogros: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -137,17 +125,26 @@ fun JugadorCard(
                 Text("Partidas: ${jugador.partidas}")
             }
 
-            TextButton(
-                onClick = onClick,
-                modifier = Modifier.testTag("edit_button_${jugador.jugadorId}")
-            ) { Text("Editar") }
+            Column {
+                TextButton(
+                    onClick = onClick,
+                    modifier = Modifier.testTag("edit_button_${jugador.jugadorId}")
+                ) { Text("Editar") }
 
-            Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            TextButton(
-                onClick = onDelete,
-                modifier = Modifier.testTag("delete_button_${jugador.jugadorId}")
-            ) { Text("Eliminar") }
+                TextButton(
+                    onClick = onDelete,
+                    modifier = Modifier.testTag("delete_button_${jugador.jugadorId}")
+                ) { Text("Eliminar") }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                TextButton(
+                    onClick = onViewLogros, // <- Navegar a logros
+                    modifier = Modifier.testTag("logros_button_${jugador.jugadorId}")
+                ) { Text("🏆 Logros") }
+            }
         }
     }
 }
