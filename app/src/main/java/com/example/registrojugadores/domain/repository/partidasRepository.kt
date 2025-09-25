@@ -7,5 +7,7 @@ interface PartidaRepository {
     fun getPartidas(): Flow<List<Partida>>
     suspend fun getPartidaById(id: Int): Partida?
     suspend fun insertPartida(partida: Partida)
+    suspend fun actualizarPartida(partida: Partida)
     suspend fun deletePartida(partida: Partida)
+    suspend fun obtenerUltimaPartidaEnCurso(): Partida?
 }

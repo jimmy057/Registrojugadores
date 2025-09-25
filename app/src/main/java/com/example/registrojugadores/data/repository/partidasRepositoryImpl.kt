@@ -18,10 +18,17 @@ class PartidasRepositoryImpl @Inject constructor(
     override suspend fun getPartidaById(id: Int): Partida? =
         dao.getPartidaById(id)?.let { PartidaMapper.toDomain(it) }
 
-    override suspend fun insertPartida(partida: Partida) =
+    override suspend fun actualizarPartida(partida: Partida) =
+        dao.updatePartida(PartidaMapper.fromDomain(partida))
+
+    override suspend fun insertPartida(partida: Partida) {
         dao.insertPartida(PartidaMapper.fromDomain(partida))
+    }
 
     override suspend fun deletePartida(partida: Partida) =
         dao.deletePartida(PartidaMapper.fromDomain(partida))
+
+    override suspend fun obtenerUltimaPartidaEnCurso(): Partida? =
+        dao.obtenerUltimaPartidaEnCurso()?.let { PartidaMapper.toDomain(it) }
 }
 

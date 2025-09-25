@@ -1,6 +1,5 @@
 package com.example.registrojugadores.data.local.entities
 
-
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,5 +10,7 @@ data class PartidaEntity(
     val jugador1Id: Int,
     val jugador2Id: Int,
     val ganadorId: Int?,
-    val esFinalizada: Boolean
+    val esFinalizada: Boolean,
+    val currentPlayerId: Int?,
+    val board: List<Int?>
 )
