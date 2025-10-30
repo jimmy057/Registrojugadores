@@ -13,7 +13,7 @@ import com.example.registrojugadores.data.local.entities.LogroEntity
 
 @Database(
     entities = [JugadorEntity::class, PartidaEntity::class, LogroEntity::class],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -22,4 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun jugadorDao(): JugadorDao
     abstract fun logroDao(): LogroDao
     abstract fun partidaDao(): PartidaDao
+
+    companion object {
+        const val DATABASE_NAME = "registro_jugadores_db"
+    }
 }
+
