@@ -2,13 +2,10 @@ package com.example.registrojugadores.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.registrojugadores.presentation.PartidasScreen.edit.EditPartidaScreen
 import com.example.registrojugadores.presentation.PartidasScreen.list.ListPartidasScreen
-import com.example.registrojugadores.presentation.logrosScreen.LogrosScreen
 import com.example.registrojugadores.presentation.tareas.list.ListJugadorScreen
 import com.example.registrojugadores.presentation.tareas.edit.EditJugadorScreen
 import com.example.registrojugadores.presentation.tictactoe.TicTacToeScreen
@@ -21,17 +18,13 @@ fun RegistroJugadoresNavHost(
         navController = navHostController,
         startDestination = "jugador_list"
     ) {
+
         composable("jugador_list") {
             ListJugadorScreen(
-                onNavigateToCreate = { navHostController.navigate("edit_jugador/null") },
-                onNavigateToEdit = { id -> navHostController.navigate("edit_jugador/$id") },
-                onNavigateToTicTacToe = { navHostController.navigate("tic_tac_toe") },
-                onNavigateToPartidas = { navHostController.navigate("partida_list") },
-                onNavigateToLogros = { jugadorId ->
-                    navHostController.navigate("logros/$jugadorId")
-                }
+                navController = navHostController
             )
         }
+
         composable("edit_jugador/{jugadorId}") { backStackEntry ->
             val jugadorId = backStackEntry.arguments?.getString("jugadorId")?.toIntOrNull()
             EditJugadorScreen(
@@ -39,13 +32,15 @@ fun RegistroJugadoresNavHost(
                 onSaveSuccess = { navHostController.popBackStack() }
             )
         }
+
         composable("partida_list") {
             ListPartidasScreen(
-                onNavigateToDetail = { partidaId ->
+                onNavigateToGame = { partidaId ->
                     navHostController.navigate("edit_partida/$partidaId")
                 }
             )
         }
+
         composable("edit_partida/{partidaId}") { backStackEntry ->
             val partidaId = backStackEntry.arguments?.getString("partidaId")?.toIntOrNull()
             EditPartidaScreen(
@@ -53,18 +48,12 @@ fun RegistroJugadoresNavHost(
                 onSaveSuccess = { navHostController.popBackStack() }
             )
         }
-        composable(
-            route = "logros/{jugadorId}",
-            arguments = listOf(navArgument("jugadorId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val jugadorId = backStackEntry.arguments?.getInt("jugadorId") ?: 0
-            LogrosScreen(jugadorId = jugadorId)
-        }
 
         composable("tic_tac_toe") {
             TicTacToeScreen()
         }
     }
 }
+
 
 

@@ -6,11 +6,14 @@ import com.example.registrojugadores.domain.model.Jugador
 fun JugadorEntity.toDomain(): Jugador = Jugador(
     jugadorId = jugadorId,
     nombres = nombres,
-    partidas = partidas
+    partidas = partidas,
+    logros = logros
 )
 
 fun Jugador.toEntity(): JugadorEntity = JugadorEntity(
     jugadorId = jugadorId,
     nombres = nombres,
-    partidas=partidas
+    partidas = partidas,
+    logros = logros
 )
+

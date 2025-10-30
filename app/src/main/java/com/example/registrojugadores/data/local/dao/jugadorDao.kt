@@ -8,21 +8,25 @@ import com.example.registrojugadores.data.local.entities.JugadorEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-    interface JugadorDao {
-        @Query("SELECT * FROM Jugador ORDER BY JugadorId DESC")
-        fun observeAll(): Flow<List<JugadorEntity>>
+interface JugadorDao {
 
-        @Query("SELECT * FROM Jugador WHERE JugadorId = :id")
-        suspend fun getById(id: Int): JugadorEntity?
+    @Query("SELECT * FROM Jugador ORDER BY JugadorId DESC")
+    fun observeAll(): Flow<List<JugadorEntity>>
 
-        @Upsert
-        suspend fun upsert(entity: JugadorEntity)
+    @Query("SELECT * FROM Jugador WHERE JugadorId = :id")
+    suspend fun getById(id: Int): JugadorEntity?
 
-        @Delete
-        suspend fun delete(entity: JugadorEntity)
+    @Upsert
+    suspend fun upsert(entity: JugadorEntity)
 
-        @Query("DELETE FROM Jugador WHERE JugadorId = :id")
-        suspend fun deleteById(id:Int)
+    @Upsert
+    suspend fun upsertAll(entities: List<JugadorEntity>) // <-- nuevo
+
+    @Delete
+    suspend fun delete(entity: JugadorEntity)
+
+    @Query("DELETE FROM Jugador WHERE JugadorId = :id")
+    suspend fun deleteById(id: Int)
 
     @Query("SELECT COUNT(*) > 0 FROM Jugador WHERE nombres = :nombre")
     suspend fun existePorNombre(nombre: String): Boolean
