@@ -3,7 +3,6 @@ package com.example.registrojugadores.data.local.mapper
 import com.example.registrojugadores.data.local.entities.PartidaEntity
 import com.example.registrojugadores.domain.model.Partida
 object PartidaMapper {
-
     fun toDomain(entity: PartidaEntity): Partida {
         return Partida(
             partidaId = entity.partidaId,
@@ -12,11 +11,8 @@ object PartidaMapper {
             jugador2Id = entity.jugador2Id,
             ganadorId = entity.ganadorId,
             esFinalizada = entity.esFinalizada,
-            currentPlayerId = entity.currentPlayerId,
-            board = entity.board
         )
     }
-
     fun fromDomain(domain: Partida): PartidaEntity {
         return PartidaEntity(
             partidaId = domain.partidaId,
@@ -25,8 +21,7 @@ object PartidaMapper {
             jugador2Id = domain.jugador2Id,
             ganadorId = domain.ganadorId,
             esFinalizada = domain.esFinalizada,
-            currentPlayerId = domain.currentPlayerId,
-            board = domain.board
         )
     }
+
 }
