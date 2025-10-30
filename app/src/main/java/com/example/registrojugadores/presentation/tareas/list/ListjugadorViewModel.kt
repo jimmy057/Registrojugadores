@@ -2,64 +2,41 @@ package com.example.registrojugadores.presentation.tareas.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import com.example.registrojugadores.domain.usecase.DeleteJugadorUseCase
 import com.example.registrojugadores.domain.usecase.ObserveJugadorUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
 class ListJugadorViewModel @Inject constructor(
-    private val observeJugadoresUseCase: ObserveJugadorUseCase,
-    private val deleteJugadorUseCase: DeleteJugadorUseCase
+    private val observeJugadorUseCase: ObserveJugadorUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ListJugadorUiState(isLoading = true))
+    private val _state = MutableStateFlow(ListJugadorUiState())
     val state: StateFlow<ListJugadorUiState> = _state.asStateFlow()
 
     init {
-        onEvent(ListJugadorUiEvent.Load)
+        loadJugadores()
     }
 
-    fun onEvent(event: ListJugadorUiEvent) {
-        when (event) {
-            is ListJugadorUiEvent.Load -> observe()
-            is ListJugadorUiEvent.Delete -> onDelete(event.jugadorId)
-            ListJugadorUiEvent.CreateNew -> _state.update { it.copy(navigateToCreate = true) }
-            is ListJugadorUiEvent.Edit -> _state.update { it.copy(navigateToEditId = event.jugadorId) }
-            is ListJugadorUiEvent.ShowMessage -> _state.update { it.copy(message = event.message) }
-        }
-    }
-
-    private fun observe() {
-        viewModelScope.launch {
-            observeJugadoresUseCase().collectLatest { list ->
-                _state.update { it.copy(isLoading = false, jugadores = list, message = null) }
+    private fun loadJugadores() {
+        observeJugadorUseCase()
+            .onEach { jugadores ->
+                _state.value = _state.value.copy(jugadores = jugadores)
             }
-        }
+            .launchIn(viewModelScope)
     }
 
-    private fun onDelete(id: Int) {
-        viewModelScope.launch {
-            try {
-                deleteJugadorUseCase(id)
-                onEvent(ListJugadorUiEvent.ShowMessage("Jugador eliminado correctamente"))
-            } catch (e: Exception) {
-                onEvent(
-                    ListJugadorUiEvent.ShowMessage(
-                        e.message ?: "Error al eliminar el jugador"
-                    )
-                )
-            }
-        }
+    fun onJugadorSelected(jugadorId: Int) {
+        _state.value = _state.value.copy(navegarAEditar = jugadorId)
     }
 
-    fun onNavigationHandled() {
-        _state.update { it.copy(navigateToCreate = false, navigateToEditId = null) }
+    fun onNavigationDone() {
+        _state.value = _state.value.copy(navegarAEditar = null)
     }
 }
+

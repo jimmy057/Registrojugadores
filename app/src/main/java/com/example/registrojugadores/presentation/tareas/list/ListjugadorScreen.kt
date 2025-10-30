@@ -6,145 +6,67 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.registrojugadores.domain.model.Jugador
+import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListJugadorScreen(
-    viewModel: ListJugadorViewModel = hiltViewModel(),
-    onNavigateToCreate: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit,
-    onNavigateToTicTacToe: () -> Unit,
-    onNavigateToPartidas: () -> Unit,
-    onNavigateToLogros: (Int) -> Unit
+    navController: NavController,
+    viewModel: ListJugadorViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.state.collectAsState().value
 
-    if (state.navigateToCreate) {
-        onNavigateToCreate()
-        viewModel.onNavigationHandled()
-    }
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text(text = "Jugadores", style = MaterialTheme.typography.titleLarge)
 
-    state.navigateToEditId?.let { id ->
-        onNavigateToEdit(id)
-        viewModel.onNavigationHandled()
-    }
+        Spacer(modifier = Modifier.height(16.dp))
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Lista de jugadores") })
-        },
-        floatingActionButton = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.End
-            ) {
-                FloatingActionButton(
-                    onClick = { viewModel.onEvent(ListJugadorUiEvent.CreateNew) },
-                    modifier = Modifier.testTag("fab_create_jugador")
-                ) { Text("+") }
-
-                FloatingActionButton(
-                    onClick = { onNavigateToTicTacToe() },
-                    modifier = Modifier.testTag("fab_play_tictactoe")
-                ) { Text("🎮") }
-
-                FloatingActionButton(
-                    onClick = { onNavigateToPartidas() },
-                    modifier = Modifier.testTag("fab_view_partidas")
-                ) { Text("📜") }
+        LazyColumn {
+            items(state.jugadores) { jugador ->
+                JugadorItem(
+                    jugador = jugador,
+                    onClick = { viewModel.onJugadorSelected(jugador.jugadorId) }
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+                    thickness = 1.dp
+                )
             }
         }
-    ) { padding ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(modifier = Modifier.testTag("loading"))
-            }
-        } else if (state.jugadores.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) { Text("No hay jugadores registrados") }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .testTag("jugador_list")
-            ) {
-                items(state.jugadores) { jugador ->
-                    JugadorCard(
-                        jugador = jugador,
-                        onClick = { viewModel.onEvent(ListJugadorUiEvent.Edit(jugador.jugadorId)) },
-                        onDelete = { viewModel.onEvent(ListJugadorUiEvent.Delete(jugador.jugadorId)) },
-                        onViewLogros = { onNavigateToLogros(jugador.jugadorId) } // <- Botón logros
-                    )
-                }
-            }
+    }
+
+    state.navegarAEditar?.let { jugadorId ->
+        LaunchedEffect(jugadorId) {
+            navController.navigate("editJugador/$jugadorId")
+            viewModel.onNavigationDone()
         }
     }
 }
 
 @Composable
-fun JugadorCard(
-    jugador: Jugador,
-    onClick: () -> Unit,
-    onDelete: () -> Unit,
-    onViewLogros: () -> Unit
+fun JugadorItem(
+    jugador: com.example.registrojugadores.domain.model.Jugador,
+    onClick: () -> Unit
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .clickable { onClick() }
-            .testTag("jugador_card_${jugador.jugadorId}")
+            .padding(vertical = 8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(jugador.nombres, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Partidas: ${jugador.partidas}")
-            }
-
-            Column {
-                TextButton(
-                    onClick = onClick,
-                    modifier = Modifier.testTag("edit_button_${jugador.jugadorId}")
-                ) { Text("Editar") }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                TextButton(
-                    onClick = onDelete,
-                    modifier = Modifier.testTag("delete_button_${jugador.jugadorId}")
-                ) { Text("Eliminar") }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                TextButton(
-                    onClick = onViewLogros, // <- Navegar a logros
-                    modifier = Modifier.testTag("logros_button_${jugador.jugadorId}")
-                ) { Text("🏆 Logros") }
-            }
+        Text(text = jugador.nombres, style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Partidas: ${jugador.partidas}", style = MaterialTheme.typography.bodyMedium)
+        if (jugador.logros.isNotEmpty()) {
+            Text(
+                text = "Logros: ${jugador.logros.joinToString(", ")}",
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
+
+

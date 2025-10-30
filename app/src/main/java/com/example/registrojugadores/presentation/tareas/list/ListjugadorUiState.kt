@@ -7,5 +7,6 @@ data class ListJugadorUiState(
     val jugadores: List<Jugador> = emptyList(),
     val message: String? = null,
     val navigateToCreate: Boolean = false,
-    val navigateToEditId: Int? = null
+    val navigateToEditId: Int? = null,
+    val navegarAEditar: Int? = null
 )
