@@ -6,6 +6,7 @@ data class EditJugadorUiState(
     val partidas: String = "",
     val nombresError: String? = null,
     val partidasError: String? = null,
+    val logros: List<String> = emptyList(),
     val isSaving: Boolean = false,
     val isDeleting: Boolean = false,
     val isNew: Boolean = true,

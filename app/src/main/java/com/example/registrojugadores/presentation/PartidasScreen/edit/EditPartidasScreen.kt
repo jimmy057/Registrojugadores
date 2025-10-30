@@ -1,5 +1,6 @@
 package com.example.registrojugadores.presentation.PartidasScreen.edit
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.registrojugadores.domain.model.Jugador
 
 @Composable
@@ -16,7 +18,7 @@ fun EditPartidaScreen(
     partidaId: Int? = null,
     onSaveSuccess: () -> Unit = {}
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(partidaId) {
         viewModel.loadPartida(partidaId)
@@ -45,7 +47,7 @@ fun EditPartidaBody(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Editar Partida", fontSize = 24.sp)
+        Text("Editar Partida", fontSize = 24.sp, style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -96,6 +98,7 @@ fun EditPartidaBody(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownJugador(
     label: String,
@@ -104,13 +107,20 @@ fun DropdownJugador(
     onSelected: (Jugador) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label)
+        Text(label, style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(4.dp))
-        OutlinedButton(onClick = { expanded = true }) {
+
+        OutlinedButton(
+            onClick = { expanded = true },
+            interactionSource = interactionSource,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+        ) {
             Text(selected?.nombres ?: "Seleccionar jugador")
         }
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -121,9 +131,13 @@ fun DropdownJugador(
                     onClick = {
                         onSelected(jugador)
                         expanded = false
-                    }
+                    },
+                    interactionSource = remember { MutableInteractionSource() },
+                    colors = MenuDefaults.itemColors()
                 )
             }
         }
     }
 }
+
+

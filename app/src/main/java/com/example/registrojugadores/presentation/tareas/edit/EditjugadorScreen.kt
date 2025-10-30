@@ -16,7 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun EditJugadorScreen(
     viewModel: EditJugadorViewModel = hiltViewModel(),
     jugadorId: Int? = null,
-    onSaveSuccess: () -> Unit = {} // 👈 nuevo callback
+    onSaveSuccess: () -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

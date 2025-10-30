@@ -53,7 +53,6 @@ class EditPartidaViewModel @Inject constructor(
         }
     }
 
-    /** Guardar partida en la base de datos */
     private fun savePartida() {
         val currentState = _state.value
         val jugador1Id = currentState.jugador1?.jugadorId ?: return
