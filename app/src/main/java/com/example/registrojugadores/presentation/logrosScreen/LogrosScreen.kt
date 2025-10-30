@@ -46,7 +46,7 @@ fun LogrosScreen(
                     val logro = Logro(
                         jugadorId = jugadorId,
                         descripcion = nuevaDescripcion,
-                        partidaId = null, // ahora válido
+                        partidaId = null,
                         fecha = fecha,
                         puntos = 0
                     )

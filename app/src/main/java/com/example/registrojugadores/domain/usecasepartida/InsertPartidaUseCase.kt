@@ -10,4 +10,5 @@ class InsertPartidaUseCase @Inject constructor(
     suspend operator fun invoke(partida: Partida) {
         repository.insertPartida(partida)
     }
+
 }
