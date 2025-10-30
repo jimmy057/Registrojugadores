@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class Jugador(
     val jugadorId: Int = 0,
     val nombres: String,
-    val partidas: Int
+    val partidas: Int,
+    val logros: List<String> = emptyList()
 )
